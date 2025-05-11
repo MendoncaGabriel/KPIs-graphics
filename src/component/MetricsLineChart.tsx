@@ -17,12 +17,11 @@ interface MetricsLineChartProps {
   };
 }
 
-// 🎛️ Configurações
 const CONFIG = {
   larguraLinha: 2,
   raioPonto: 3,
   linhasBase: 6,
-  opacidadeLinhasBase: 0.2, // Aumentei a opacidade para 0.2 para uma grid mais clara
+  opacidadeLinhasBase: 0.2, 
   pontosMaximos: 40,
   tempoEntreAtualizacoes: 500, // ms
   suavizacao: 0.1, // entre 0 (sem suavização) e 1 (instantâneo)
@@ -61,11 +60,11 @@ export default function MetricsLineChart({ currentMetrics }: MetricsLineChartPro
     const adicionarNovoPonto = () => {
       historicoRef.current.push({ ...currentMetrics, timestamp: Date.now() });
       if (historicoRef.current.length > CONFIG.pontosMaximos) {
-        historicoRef.current.shift(); // Remove o ponto mais antigo
+        historicoRef.current.shift(); 
       }
     };
 
-    adicionarNovoPonto(); // Inicializa com um ponto
+    adicionarNovoPonto(); 
 
     const desenhar = () => {
       requestAnimationFrame(desenhar);
@@ -74,7 +73,6 @@ export default function MetricsLineChart({ currentMetrics }: MetricsLineChartPro
       const delta = agora - ultimaAtualizacao;
       ultimaAtualizacao = agora;
 
-      // Suavizar valores
       chaves.forEach((chave) => {
         suavizadoRef.current[chave] +=
           (currentMetrics[chave] - suavizadoRef.current[chave]) * CONFIG.suavizacao;
@@ -82,7 +80,6 @@ export default function MetricsLineChart({ currentMetrics }: MetricsLineChartPro
 
       ctx.clearRect(0, 0, width, height);
 
-      // Linhas horizontais de referência e porcentagens
       ctx.strokeStyle = `rgba(255,255,255,${CONFIG.opacidadeLinhasBase})`;
       ctx.lineWidth = 0.5;
       for (let i = 0; i <= CONFIG.linhasBase; i++) {
@@ -92,24 +89,21 @@ export default function MetricsLineChart({ currentMetrics }: MetricsLineChartPro
         ctx.lineTo(width, y);
         ctx.stroke();
 
-        // Adiciona os rótulos de porcentagem
         ctx.fillStyle = `rgba(255,255,255,${CONFIG.opacidadeLinhasBase})`;
         ctx.font = '12px Arial';
         const porcentagem = ((CONFIG.linhasBase - i) * 100) / CONFIG.linhasBase;
-        ctx.fillText(`${Math.round(porcentagem)}%`, 10, y - 5); // Desenha a porcentagem à esquerda
+        ctx.fillText(`${Math.round(porcentagem)}%`, 10, y - 5); 
       }
 
       chaves.forEach((chave) => {
         const cor = CORES[chave];
         const pontos = historicoRef.current.map((d) => d[chave]);
-        pontos.push(suavizadoRef.current[chave]); // Adiciona valor suavizado atual
+        pontos.push(suavizadoRef.current[chave]); 
 
-        // Desenha linha
         ctx.strokeStyle = cor;
         ctx.lineWidth = CONFIG.larguraLinha;
         ctx.beginPath();
 
-        // Mover os pontos da direita para a esquerda
         pontos.forEach((valor, i) => {
           const x = width - (pontos.length - 1 - i) * distanciaEntrePontos;
           const y = height - (valor / 100) * height;
@@ -119,7 +113,6 @@ export default function MetricsLineChart({ currentMetrics }: MetricsLineChartPro
 
         ctx.stroke();
 
-        // Desenha bolinhas
         pontos.forEach((valor, i) => {
           const x = width - (pontos.length - 1 - i) * distanciaEntrePontos;
           const y = height - (valor / 100) * height;
@@ -130,7 +123,6 @@ export default function MetricsLineChart({ currentMetrics }: MetricsLineChartPro
         });
       });
 
-      // Adiciona novo ponto a cada intervalo
       if (delta >= CONFIG.tempoEntreAtualizacoes) {
         adicionarNovoPonto();
       }
